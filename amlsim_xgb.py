@@ -18,8 +18,11 @@ def read_data():
     return train_x, dev_x, test_x, train_y, dev_y, test_y
 
 
-def train_model(train_x, train_y, dev_x, dev_y):
+def train_model(train_x, train_y, dev_x, dev_y, gpu=False):
     params = {'objective': 'binary:logistic', 'n_estimators': 100, 'n_jobs': -1}
+    if gpu:
+        params.update({'tree_method': 'gpu_hist', 'gpu_id': 0})
+
     xgb_model = xgb.XGBClassifier(**params)
 
     params_search = {
@@ -31,7 +34,7 @@ def train_model(train_x, train_y, dev_x, dev_y):
 
     f1_score_custom_scoring = make_scorer(f1_score, greater_is_better=True)
 
-    clf = GridSearchCV(xgb_model, params_search, scoring=f1_score_custom_scoring, cv=3, n_jobs=-1)
+    clf = GridSearchCV(xgb_model, params_search, scoring=f1_score_custom_scoring, cv=5, n_jobs=-1)
 
     clf.fit(train_x, train_y)
 
@@ -42,4 +45,4 @@ def train_model(train_x, train_y, dev_x, dev_y):
 
 if __name__ == "__main__":
     train_x, dev_x, test_x, train_y, dev_y, test_y = read_data()
-    xgb_model = train_model(train_x, train_y, dev_x, dev_y)
+    xgb_model = train_model(train_x, train_y, dev_x, dev_y, gpu=False)
