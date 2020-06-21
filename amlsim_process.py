@@ -54,13 +54,13 @@ def generate_feature_vectors(input_file_path: str, output_folder_path: str):
                                                     shuffle=True,
                                                     random_state=SEED)
 
-    train_x.to_csv('data/features_train_amlsim.csv', header=False, index=False)
-    dev_x.to_csv('data/features_dev_amlsim.csv', header=False, index=False)
-    test_x.to_csv('data/features_test_amlsim.csv', header=False, index=False)
+    train_x.to_csv('data/features_train_amlsim.csv', index=False)
+    dev_x.to_csv('data/features_dev_amlsim.csv', index=False)
+    test_x.to_csv('data/features_test_amlsim.csv', index=False)
 
-    train_y.to_csv('data/labels_train_amlsim.csv', header=False, index=False)
-    dev_y.to_csv('data/labels_dev_amlsim.csv', header=False, index=False)
-    test_y.to_csv('data/labels_test_amlsim.csv', header=False, index=False)
+    train_y.to_csv('data/labels_train_amlsim.csv', index=False)
+    dev_y.to_csv('data/labels_dev_amlsim.csv', index=False)
+    test_y.to_csv('data/labels_test_amlsim.csv', index=False)
 
 
 def arg_parser():
