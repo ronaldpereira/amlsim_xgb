@@ -40,7 +40,7 @@ def train_model(train_x, train_y, dev_x, dev_y, gpu=False):
 
     results_df = pd.DataFrame(clf.cv_results_)
 
-    results_df.to_csv('data/results_grid_search_cv.csv')
+    results_df.to_csv('data/results_grid_search_cv.csv', index=False)
 
 
 if __name__ == "__main__":
