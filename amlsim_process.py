@@ -46,12 +46,14 @@ def generate_feature_vectors(input_file_path: str, output_folder_path: str):
                                                                 feat_df['is_sar'],
                                                                 train_size=0.9,
                                                                 shuffle=True,
+                                                                stratify=feat_df['is_sar'],
                                                                 random_state=SEED)
 
     dev_x, test_x, dev_y, test_y = train_test_split(dev_test_x,
                                                     dev_test_y,
                                                     train_size=0.5,
                                                     shuffle=True,
+                                                    stratify=dev_test_y,
                                                     random_state=SEED)
 
     train_x.to_csv('data/features_train_amlsim.csv', index=False)
