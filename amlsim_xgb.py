@@ -44,7 +44,7 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, gpu=False):
     results_df.to_csv('data/results_grid_search_cv.csv', index=False)
 
     with open('model/xgb_model_cv.pickle', 'wb') as f:
-        pickle.dump(clf.best_estimator_)
+        pickle.dump(clf.best_estimator_, f)
 
 
 def f1_score_custom(y_pred, y_true):
