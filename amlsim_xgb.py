@@ -26,6 +26,7 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
 
     params_search = {
         'learning_rate': [0.01, 0.05, 0.1, 0.3, 0.5, 1, 5],
+        'max_depth': [5, 10, 15, 20, 25, 30],
         'gamma': [0, 0.1, 0.5, 1, 10],
         'reg_alpha': [0, 0.1, 0.5, 1, 10],
         'reg_lambda': [0, 0.1, 0.5, 1, 10]
@@ -57,7 +58,13 @@ def f1_score_custom(y_pred, y_true):
 def train_model(train_x, train_y, dev_x, dev_y, dataset_name, xgb_model=False):
     if not xgb_model:
         params = {'objective': 'binary:logistic', 'n_estimators': 200, 'n_jobs': -1}
-        params.update({'gamma': 0, 'learning_rate': 0.5, 'reg_alpha': 0.5, 'reg_lambda': 0})
+        params.update({
+            'gamma': 0,
+            'learning_rate': 0.5,
+            'max_depth': 10,
+            'reg_alpha': 0.5,
+            'reg_lambda': 0
+        })
         xgb_model = xgb.XGBClassifier(**params)
         xgb_model.fit(train_x,
                       train_y,
