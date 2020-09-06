@@ -55,9 +55,8 @@ def f1_score_custom(y_pred, y_true):
 
 
 def train_model(train_x, train_y, dev_x, dev_y, dataset_name, xgb_model=False):
-    params = {'objective': 'binary:logistic', 'n_estimators': 200, 'n_jobs': -1}
-
     if not xgb_model:
+        params = {'objective': 'binary:logistic', 'n_estimators': 200, 'n_jobs': -1}
         params.update({'gamma': 0, 'learning_rate': 0.5, 'reg_alpha': 0.5, 'reg_lambda': 0})
         xgb_model = xgb.XGBClassifier(**params)
         xgb_model.fit(train_x,
