@@ -7,19 +7,19 @@ from sklearn.metrics import f1_score, make_scorer
 from sklearn.model_selection import GridSearchCV
 
 
-def read_data(dataset):
-    train_x = pd.read_csv('data/features_train_%s.csv' % dataset)
-    dev_x = pd.read_csv('data/features_dev_%s.csv' % dataset)
-    test_x = pd.read_csv('data/features_test_%s.csv' % dataset)
+def read_data(dataset_name):
+    train_x = pd.read_csv('data/features_train_%s.csv' % dataset_name)
+    dev_x = pd.read_csv('data/features_dev_%s.csv' % dataset_name)
+    test_x = pd.read_csv('data/features_test_%s.csv' % dataset_name)
 
-    train_y = pd.read_csv('data/labels_train_%s.csv' % dataset).values.ravel()
-    dev_y = pd.read_csv('data/labels_dev_%s.csv' % dataset).values.ravel()
-    test_y = pd.read_csv('data/labels_test_%s.csv' % dataset).values.ravel()
+    train_y = pd.read_csv('data/labels_train_%s.csv' % dataset_name).values.ravel()
+    dev_y = pd.read_csv('data/labels_dev_%s.csv' % dataset_name).values.ravel()
+    test_y = pd.read_csv('data/labels_test_%s.csv' % dataset_name).values.ravel()
 
     return train_x, dev_x, test_x, train_y, dev_y, test_y
 
 
-def search_hyperparams(train_x, train_y, dev_x, dev_y, gpu=False):
+def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name, gpu=False):
     params = {'objective': 'binary:logistic', 'n_estimators': 100, 'n_jobs': -1}
     if gpu:
         params.update({'tree_method': 'gpu_hist', 'gpu_id': 0})
@@ -41,14 +41,12 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, gpu=False):
 
     results_df = pd.DataFrame(clf.cv_results_)
 
-    results_df.to_csv('data/results_grid_search_cv.csv', index=False)
+    results_df.to_csv('output/results_grid_search_%s.csv' % dataset_name, index=False)
 
-    best_model = clf.best_estimator_
+    with open('model/best_xgb_model_%s.pickle' % dataset_name, 'wb') as f:
+        pickle.dump(clf.best_estimator_, f)
 
-    with open('model/best_xgb_model_cv.pickle', 'wb') as f:
-        pickle.dump(best_model, f)
-
-    train_model(train_x, train_y, dev_x, dev_y, xgb_model=True)
+    train_model(train_x, train_y, dev_x, dev_y, dataset_name, gpu=gpu, xgb_model=True)
 
 
 def f1_score_custom(y_pred, y_true):
@@ -58,7 +56,7 @@ def f1_score_custom(y_pred, y_true):
     return 'f1_err', 1 - f1_score(y_true, y_pred, average='binary')
 
 
-def train_model(train_x, train_y, dev_x, dev_y, gpu=False, xgb_model=False):
+def train_model(train_x, train_y, dev_x, dev_y, dataset_name, gpu=False, xgb_model=False):
     params = {'objective': 'binary:logistic', 'n_estimators': 300, 'n_jobs': -1}
 
     if gpu:
@@ -69,7 +67,7 @@ def train_model(train_x, train_y, dev_x, dev_y, gpu=False, xgb_model=False):
         xgb_model = xgb.XGBClassifier(**params)
 
     else:
-        with open('model/best_xgb_model_cv.pickle', 'rb') as f:
+        with open('model/best_xgb_model_%s.pickle' % dataset_name, 'rb') as f:
             xgb_model = pickle.load(f)
 
     xgb_model.fit(train_x,
@@ -87,7 +85,7 @@ def train_model(train_x, train_y, dev_x, dev_y, gpu=False, xgb_model=False):
           f1_score(test_y, y_pred, average='binary', pos_label=1))
     print('f1_score_macro on test set: %f' % f1_score(test_y, y_pred, average='macro'))
 
-    with open('model/xgb_model.pickle', 'wb') as f:
+    with open('model/xgb_model_%s.pickle' % dataset_name, 'wb') as f:
         pickle.dump(xgb_model, f)
 
 
@@ -123,6 +121,12 @@ if __name__ == "__main__":
     args = arg_parser()
     train_x, dev_x, test_x, train_y, dev_y, test_y = read_data(args.dataset)
     if args.search:
-        search_hyperparams(train_x, train_y, dev_x, dev_y, gpu=args.gpu)
+        search_hyperparams(train_x, train_y, dev_x, dev_y, args.dataset, gpu=args.gpu)
     else:
-        train_model(train_x, train_y, dev_x, dev_y, gpu=args.gpu, xgb_model=args.load_best_model)
+        train_model(train_x,
+                    train_y,
+                    dev_x,
+                    dev_y,
+                    args.dataset,
+                    gpu=args.gpu,
+                    xgb_model=args.load_best_model)
