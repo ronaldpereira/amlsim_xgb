@@ -29,7 +29,7 @@ def load_transactions(file_path: str) -> pd.DataFrame:
     return df
 
 
-def generate_feature_vectors(input_file_path: str, output_folder_path: str):
+def generate_feature_vectors(input_file_path: str, output_filename: str):
     feat_df = load_transactions(input_file_path)
     feat_df.drop(['tran_id', 'alert_id'], axis=1, inplace=True)
 
@@ -56,20 +56,20 @@ def generate_feature_vectors(input_file_path: str, output_folder_path: str):
                                                     stratify=dev_test_y,
                                                     random_state=SEED)
 
-    train_x.to_csv('data/features_train_amlsim.csv', index=False)
-    dev_x.to_csv('data/features_dev_amlsim.csv', index=False)
-    test_x.to_csv('data/features_test_amlsim.csv', index=False)
+    train_x.to_csv('data/features_train_%s.csv' % output_filename, index=False)
+    dev_x.to_csv('data/features_dev_%s.csv' % output_filename, index=False)
+    test_x.to_csv('data/features_test_%s.csv' % output_filename, index=False)
 
-    train_y.to_csv('data/labels_train_amlsim.csv', index=False)
-    dev_y.to_csv('data/labels_dev_amlsim.csv', index=False)
-    test_y.to_csv('data/labels_test_amlsim.csv', index=False)
+    train_y.to_csv('data/labels_train_%s.csv' % output_filename, index=False)
+    dev_y.to_csv('data/labels_dev_%s.csv' % output_filename, index=False)
+    test_y.to_csv('data/labels_test_%s.csv' % output_filename, index=False)
 
 
 def arg_parser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('input', type=str, help='AMLSim transactions data input file path.')
-    parser.add_argument('output', type=str, help='Transformed AMLSim data folder output path.')
+    parser.add_argument('output_filename', type=str, help='Output dataset filename.')
 
     args = parser.parse_args()
 
@@ -78,7 +78,7 @@ def arg_parser():
 
 def generate_amlsim_data():
     args = arg_parser()
-    generate_feature_vectors(args.input, args.output)
+    generate_feature_vectors(args.input, args.output_filename)
 
 
 if __name__ == '__main__':
