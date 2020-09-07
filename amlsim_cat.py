@@ -39,7 +39,7 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
 
     f1_score_custom_scoring = make_scorer(f1_score, greater_is_better=True)
 
-    clf = GridSearchCV(cat_model, params_search, scoring=f1_score_custom_scoring, cv=5, n_jobs=-1)
+    clf = GridSearchCV(cat_model, params_search, scoring=f1_score_custom_scoring, cv=3, n_jobs=-1)
 
     clf.fit(train_x, train_y)
 
