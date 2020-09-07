@@ -25,11 +25,11 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
     xgb_model = xgb.XGBClassifier(**params)
 
     params_search = {
-        'learning_rate': [0.01, 0.05, 0.1, 0.3, 0.5, 1, 5],
-        'max_depth': [5, 10, 15, 20, 25, 30],
-        'gamma': [0, 0.1, 0.5, 1, 10],
-        'reg_alpha': [0, 0.1, 0.5, 1, 10],
-        'reg_lambda': [0, 0.1, 0.5, 1, 10]
+        'learning_rate': [0.01, 0.1, 0.5, 1],
+        'max_depth': [5, 10, 20, 25],
+        'gamma': [0, 0.1, 0.5, 1],
+        'reg_alpha': [0, 0.1, 0.5, 1],
+        'reg_lambda': [0, 0.1, 0.5, 1]
     }
 
     f1_score_custom_scoring = make_scorer(f1_score, greater_is_better=True)
