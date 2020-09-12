@@ -23,7 +23,7 @@ def read_data(dataset_name):
 def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
     pos_class_weight = len(train_y[train_y == 0]) / len(train_y[train_y == 1])
     params = {
-        'iterations': 200,
+        'iterations': 100,
         'class_weights': [1, pos_class_weight],
         'eval_metric': 'F1',
         'verbose': False
@@ -32,9 +32,9 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
     cat_model = cat.CatBoostClassifier(**params)
 
     params_search = {
-        'learning_rate': [0.01, 0.05, 0.1, 0.3, 0.5, 1, 5],
-        'max_depth': [5, 8, 10, 15, 16],
-        'reg_lambda': [0, 0.1, 0.5, 1, 10]
+        'learning_rate': [0.01, 0.1, 0.5, 1],
+        'max_depth': [5, 8, 10, 16],
+        'reg_lambda': [0, 0.1, 0.5, 1]
     }
 
     f1_score_custom_scoring = make_scorer(f1_score, greater_is_better=True)
