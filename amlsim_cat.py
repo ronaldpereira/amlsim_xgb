@@ -45,7 +45,7 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
 
     results_df = pd.DataFrame(clf.cv_results_)
 
-    results_df.to_csv('output/results_grid_search_%s.csv' % dataset_name, index=False)
+    results_df.to_csv('output/cat_results_grid_search_%s.csv' % dataset_name, index=False)
 
     with open('model/best_cat_model_%s.pickle' % dataset_name, 'wb') as f:
         pickle.dump(clf.best_estimator_, f)
@@ -57,12 +57,11 @@ def train_model(train_x, train_y, dev_x, dev_y, dataset_name, cat_model=False):
     if not cat_model:
         pos_class_weight = len(train_y[train_y == 0]) * 100 / len(train_y[train_y == 1])
         params = {
-            'iterations': 200,
+            'iterations': 500,
             'class_weights': [1, pos_class_weight],
             'eval_metric': 'F1',
             'verbose': False
         }
-        params.update({'learning_rate': 0.5, 'reg_lambda': 0, 'max_depth': 10})
         cat_model = cat.CatBoostClassifier(**params)
         cat_model.fit(train_x,
                       train_y,

@@ -40,7 +40,7 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
 
     results_df = pd.DataFrame(clf.cv_results_)
 
-    results_df.to_csv('output/results_grid_search_%s.csv' % dataset_name, index=False)
+    results_df.to_csv('output/xgb_results_grid_search_%s.csv' % dataset_name, index=False)
 
     with open('model/best_xgb_model_%s.pickle' % dataset_name, 'wb') as f:
         pickle.dump(clf.best_estimator_, f)
