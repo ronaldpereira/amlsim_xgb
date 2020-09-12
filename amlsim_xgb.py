@@ -20,7 +20,7 @@ def read_data(dataset_name):
 
 
 def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
-    params = {'objective': 'binary:logistic', 'n_estimators': 200, 'n_jobs': -1}
+    params = {'objective': 'binary:logistic', 'n_estimators': 100, 'n_jobs': -1}
 
     xgb_model = xgb.XGBClassifier(**params)
 
