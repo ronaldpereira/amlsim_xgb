@@ -26,7 +26,7 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
 
     params_search = {
         'learning_rate': [0.01, 0.1, 0.5, 1],
-        'max_depth': [5, 10, 20, 25],
+        'max_depth': [5, 10, 15, 20],
         'gamma': [0, 0.1, 0.5, 1],
         'reg_alpha': [0, 0.1, 0.5, 1],
         'reg_lambda': [0, 0.1, 0.5, 1]
