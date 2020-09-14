@@ -1,0 +1,3 @@
+f1_score_binary for non frauds on test set: 0.999728
+f1_score_binary for frauds on test set: 0.999728
+f1_score_macro on test set: 0.999728
