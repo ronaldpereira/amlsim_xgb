@@ -40,6 +40,8 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
 
     results_df = pd.DataFrame(clf.cv_results_)
 
+    results_df = results_df.sort_values(by='rank_test_score')
+
     results_df.to_csv('output/xgb_results_grid_search_%s.csv' % dataset_name, index=False)
 
     with open('model/best_xgb_model_%s.pickle' % dataset_name, 'wb') as f:
