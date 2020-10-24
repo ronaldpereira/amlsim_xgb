@@ -1,13 +1,7 @@
 import argparse
-import datetime
-import pickle
-from collections import defaultdict
 
-import numpy as np
 import pandas as pd
-from scipy.sparse import csr_matrix
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder
 
 SEED = 1212
 
