@@ -1,25 +1,40 @@
 import argparse
 import pickle
+from time import time
+from typing import Tuple
 
+import numpy as np
 import pandas as pd
 import xgboost as xgb
 from sklearn.metrics import f1_score, make_scorer
 from sklearn.model_selection import GridSearchCV
 
 
-def read_data(dataset_name):
+def read_data(dataset_name: str):
     train_x = pd.read_csv('data/features_train_%s.csv' % dataset_name)
     dev_x = pd.read_csv('data/features_dev_%s.csv' % dataset_name)
     test_x = pd.read_csv('data/features_test_%s.csv' % dataset_name)
 
-    train_y = pd.read_csv('data/labels_train_%s.csv' % dataset_name).values.ravel()
-    dev_y = pd.read_csv('data/labels_dev_%s.csv' % dataset_name).values.ravel()
-    test_y = pd.read_csv('data/labels_test_%s.csv' % dataset_name).values.ravel()
+    train_y = pd.read_csv('data/labels_train_%s.csv' % dataset_name)
+    dev_y = pd.read_csv('data/labels_dev_%s.csv' % dataset_name)
+    test_y = pd.read_csv('data/labels_test_%s.csv' % dataset_name)
 
     return train_x, dev_x, test_x, train_y, dev_y, test_y
 
 
-def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
+def search_hyperparams(train_x: pd.DataFrame, train_y: pd.Series, dev_x: pd.DataFrame,
+                       dev_y: pd.Series, dataset_name: str):
+    """Searches for the best hyperparameters for a given dataset for XGBoost using GridSearch with
+    CrossValidation in order to maximize F1 Score metric.
+
+    Args:
+        train_x (pd.DataFrame): [description]
+        train_y (pd.Series): [description]
+        dev_x (pd.DataFrame): [description]
+        dev_y (pd.Series): [description]
+        dataset_name (str): [description]
+    """
+
     params = {'objective': 'binary:logistic', 'n_estimators': 100, 'n_jobs': -1}
 
     xgb_model = xgb.XGBClassifier(**params)
@@ -50,14 +65,42 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
     train_model(train_x, train_y, dev_x, dev_y, dataset_name, xgb_model=True)
 
 
-def f1_score_custom(y_pred, y_true):
+def f1_score_custom(y_pred: np.array, y_true: xgb.DMatrix) -> Tuple[str, float]:
+    """Custom F1 Score function for XGBoost custom evaluation metric definition.
+    This F1 Score works for the binary average, using the fraudulent class as positive class.
+    In this way, we can optmize the model to detect more and better fraudulent transactions.
+
+    Args:
+        y_pred (np.array): Prediction array.
+        y_true (xgb.DMatrix): Ground-truth DMatrix that we'll use the get its labels from.
+
+    Returns:
+        Tuple[str, float]: Tuple containing the name of the metric and its value.
+    """
+
     y_true = y_true.get_label()
     y_pred = y_pred > 0.5
 
     return 'f1_err', 1 - f1_score(y_true, y_pred, average='binary')
 
 
-def train_model(train_x, train_y, dev_x, dev_y, dataset_name, xgb_model=False):
+def train_model(train_x: pd.DataFrame,
+                train_y: pd.Series,
+                dev_x: pd.DataFrame,
+                dev_y: pd.Series,
+                dataset_name: str,
+                xgb_model: bool = False):
+    """Function that trains and evaluates the model, as well as save the pickle fitted model.
+
+    Args:
+        train_x (pd.DataFrame): Training features DataFrame.
+        train_y (pd.Series): Training labels.
+        dev_x (pd.DataFrame): Dev features DataFrame.
+        dev_y (pd.Series): Dev labels.
+        dataset_name (str): AMLSim dataset name.
+        xgb_model (bool, optional): Whether to load the pickled model or not. Defaults to False.
+    """
+
     if not xgb_model:
         params = {'objective': 'binary:logistic', 'n_estimators': 200, 'n_jobs': -1}
         params.update({
@@ -77,10 +120,12 @@ def train_model(train_x, train_y, dev_x, dev_y, dataset_name, xgb_model=False):
         with open('model/best_xgb_model_%s.pickle' % dataset_name, 'rb') as f:
             xgb_model = pickle.load(f)
 
+    start = time()
     y_pred = xgb_model.predict(test_x)
 
     y_pred = y_pred > 0.5
 
+    print('time spent for prediction: %f' % (time() - start))
     print('f1_score_binary for non frauds on test set: %f' %
           f1_score(test_y, y_pred, average='binary', pos_label=0))
     print('f1_score_binary for frauds on test set: %f' %

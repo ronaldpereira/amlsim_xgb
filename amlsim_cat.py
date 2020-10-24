@@ -1,8 +1,9 @@
 import argparse
 import pickle
+from time import time
 
-import pandas as pd
 import catboost as cat
+import pandas as pd
 from sklearn.metrics import f1_score, make_scorer
 from sklearn.model_selection import GridSearchCV
 
@@ -19,14 +20,20 @@ def read_data(dataset_name):
     return train_x, dev_x, test_x, train_y, dev_y, test_y
 
 
-def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
-    pos_class_weight = len(train_y[train_y == 0]) / len(train_y[train_y == 1])
-    params = {
-        'iterations': 100,
-        'class_weights': [1, pos_class_weight],
-        'eval_metric': 'F1',
-        'verbose': False
-    }
+def search_hyperparams(train_x: pd.DataFrame, train_y: pd.Series, dev_x: pd.DataFrame,
+                       dev_y: pd.Series, dataset_name: str):
+    """Searches for the best hyperparameters for a given dataset for XGBoost using GridSearch with
+    CrossValidation in order to maximize F1 Score metric.
+
+    Args:
+        train_x (pd.DataFrame): [description]
+        train_y (pd.Series): [description]
+        dev_x (pd.DataFrame): [description]
+        dev_y (pd.Series): [description]
+        dataset_name (str): [description]
+    """
+
+    params = {'iterations': 100, 'eval_metric': 'F1', 'verbose': False}
 
     cat_model = cat.CatBoostClassifier(**params)
 
@@ -54,29 +61,38 @@ def search_hyperparams(train_x, train_y, dev_x, dev_y, dataset_name):
     train_model(train_x, train_y, dev_x, dev_y, dataset_name, cat_model=True)
 
 
-def train_model(train_x, train_y, dev_x, dev_y, dataset_name, cat_model=False):
+def train_model(train_x: pd.DataFrame,
+                train_y: pd.Series,
+                dev_x: pd.DataFrame,
+                dev_y: pd.Series,
+                dataset_name: str,
+                cat_model: bool = False):
+    """Function that trains and evaluates the model, as well as save the pickle fitted model.
+
+    Args:
+        train_x (pd.DataFrame): Training features DataFrame.
+        train_y (pd.Series): Training labels.
+        dev_x (pd.DataFrame): Dev features DataFrame.
+        dev_y (pd.Series): Dev labels.
+        dataset_name (str): AMLSim dataset name.
+        cat_model (bool, optional): Whether to load the pickled model or not. Defaults to False.
+    """
+
     if not cat_model:
-        pos_class_weight = len(train_y[train_y == 0]) * 100 / len(train_y[train_y == 1])
-        params = {
-            'iterations': 500,
-            'class_weights': [1, pos_class_weight],
-            'eval_metric': 'F1',
-            'verbose': False
-        }
+        params = {'iterations': 500, 'eval_metric': 'F1', 'verbose': False}
         cat_model = cat.CatBoostClassifier(**params)
-        cat_model.fit(train_x,
-                      train_y,
-                      cat_features=[0, 1, 2, 3, 5, 6, 7],
-                      eval_set=[(train_x, train_y), (dev_x, dev_y)])
+        cat_model.fit(train_x, train_y, eval_set=[(train_x, train_y), (dev_x, dev_y)])
 
     else:
         with open('model/best_cat_model_%s.pickle' % dataset_name, 'rb') as f:
             cat_model = pickle.load(f)
 
+    start = time()
     y_pred = cat_model.predict(test_x)
 
     y_pred = y_pred > 0.5
 
+    print('time spent for prediction: %f' % (time() - start))
     print('f1_score_binary for non frauds on test set: %f' %
           f1_score(test_y, y_pred, average='binary', pos_label=0))
     print('f1_score_binary for frauds on test set: %f' %
