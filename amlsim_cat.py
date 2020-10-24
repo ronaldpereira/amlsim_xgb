@@ -5,7 +5,6 @@ import pandas as pd
 import catboost as cat
 from sklearn.metrics import f1_score, make_scorer
 from sklearn.model_selection import GridSearchCV
-from xgboost.training import train
 
 
 def read_data(dataset_name):
