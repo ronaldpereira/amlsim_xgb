@@ -46,7 +46,7 @@
 # echo 'amlsim_1k catboost data'
 # python amlsim_process.py data/transactions_1k.csv amlsim_1k
 # echo 'amlsim_1k catboost train'
-# python amlsim_cat.py -d amlsim_1k > output/cat_amlsim_1k_cv.txt
+# python amlsim_cat.py -d amlsim_1k -s > output/cat_amlsim_1k_cv.txt
 
 echo 'amlsim_1k_jan xgboost data'
 python amlsim_process.py data/transactions_1k_jan.csv amlsim_1k_jan
@@ -56,4 +56,4 @@ python amlsim_xgb.py -d amlsim_1k_jan -s > output/xgb_amlsim_1k_jan_cv.txt
 echo 'amlsim_1k_jan catboost data'
 python amlsim_process.py data/transactions_1k_jan.csv amlsim_1k_jan
 echo 'amlsim_1k_jan catboost train'
-python amlsim_cat.py -d amlsim_1k_jan > output/cat_amlsim_1k_jan_cv.txt
+python amlsim_cat.py -d amlsim_1k_jan -s > output/cat_amlsim_1k_jan_cv.txt
