@@ -1,0 +1,4 @@
+time spent for prediction: 0.002579
+f1_score_binary for non frauds on test set: 0.998758
+f1_score_binary for frauds on test set: 0.800000
+f1_score_macro on test set: 0.899379
